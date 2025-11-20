@@ -1,0 +1,109 @@
+classDiagram
+    %% Interface ICours
+    class ICours {
+        <<interface>>
+        +getDescription() String
+        +getDuree() double
+    }
+
+    %% Classe Cours
+    class Cours {
+        -String matiere
+        -String enseignant
+        -String salle
+        -String date
+        -String heureDebut
+        -boolean estOptionnel
+        -String niveau
+        -boolean necessiteProjecteur
+        +Cours(...)
+        +getDescription() String
+        +getDuree() double
+        +getMatiere() String
+        +getEnseignant() String
+    }
+
+    %% Builder Pattern
+    class CoursBuilder {
+        -String matiere
+        -String enseignant
+        -String salle
+        -String date
+        -String heureDebut
+        -boolean estOptionnel
+        -String niveau
+        -boolean necessiteProjecteur
+        +setMatiere(String) CoursBuilder
+        +setEnseignant(String) CoursBuilder
+        +setSalle(String) CoursBuilder
+        +setDate(String) CoursBuilder
+        +setHeureDebut(String) CoursBuilder
+        +setEstOptionnel(boolean) CoursBuilder
+        +setNiveau(String) CoursBuilder
+        +setNecessiteProjecteur(boolean) CoursBuilder
+        +build() Cours
+    }
+
+    %% Decorator Pattern
+    class CoursDecorator {
+        <<abstract>>
+        #ICours coursDecorated
+        +CoursDecorator(ICours)
+        +getDescription()* String
+        +getDuree()* double
+    }
+
+    class CoursEnLigne {
+        +CoursEnLigne(ICours)
+        +getDescription() String
+        +getDuree() double
+    }
+
+    %% Observer Pattern
+    class Subject {
+        <<interface>>
+        +attach(Observer) void
+        +detach(Observer) void
+        +notifyObservers(String) void
+    }
+
+    class Observer {
+        <<interface>>
+        +update(String) void
+    }
+
+    class GestionnaireEmploiDuTemps {
+        -List~ICours~ listeCours
+        -List~Observer~ observers
+        +attach(Observer) void
+        +detach(Observer) void
+        +notifyObservers(String) void
+        +ajouterCours(ICours) void
+        +modifierCours(ICours, String) void
+        +setChangement(String) void
+    }
+
+    class Etudiant {
+        -String nom
+        +Etudiant(String)
+        +update(String) void
+    }
+
+    class Responsable {
+        -String nom
+        +Responsable(String)
+        +update(String) void
+    }
+
+    %% Relations
+    ICours <|.. Cours : implements
+    ICours <|.. CoursDecorator : implements
+    CoursDecorator <|-- CoursEnLigne : extends
+    CoursDecorator o-- ICours : decorates
+    CoursBuilder ..> Cours : creates
+    
+    Subject <|.. GestionnaireEmploiDuTemps : implements
+    Observer <|.. Etudiant : implements
+    Observer <|.. Responsable : implements
+    GestionnaireEmploiDuTemps o-- Observer : observers
+    GestionnaireEmploiDuTemps o-- ICours : listeCours

@@ -1,0 +1,129 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' ==================== PATTERN BUILDER ====================
+class Cours implements ICours {
+  - matiere: String
+  - enseignant: String
+  - salle: String
+  - date: String
+  - heureDebut: String
+  - estOptionnel: boolean
+  - niveau: String
+  - necessiteProjecteur: boolean
+  
+  + Cours(matiere, enseignant, salle, date, heureDebut, estOptionnel, niveau, necessiteProjecteur)
+  + getDescription(): String
+  + getDuree(): double
+  + getMatiere(): String
+  + getEnseignant(): String
+}
+
+class CoursBuilder {
+  - matiere: String
+  - enseignant: String
+  - salle: String
+  - date: String
+  - heureDebut: String
+  - estOptionnel: boolean
+  - niveau: String
+  - necessiteProjecteur: boolean
+  
+  + setMatiere(String): CoursBuilder
+  + setEnseignant(String): CoursBuilder
+  + setSalle(String): CoursBuilder
+  + setDate(String): CoursBuilder
+  + setHeureDebut(String): CoursBuilder
+  + setEstOptionnel(boolean): CoursBuilder
+  + setNiveau(String): CoursBuilder
+  + setNecessiteProjecteur(boolean): CoursBuilder
+  + build(): Cours
+}
+
+CoursBuilder ..> Cours : <<creates>>
+
+' ==================== PATTERN DECORATOR ====================
+interface ICours {
+  + getDescription(): String
+  + getDuree(): double
+}
+
+abstract class CoursDecorator implements ICours {
+  # coursDecorated: ICours
+  
+  + CoursDecorator(cours: ICours)
+  + {abstract} getDescription(): String
+  + {abstract} getDuree(): double
+}
+
+class CoursEnLigne extends CoursDecorator {
+  + CoursEnLigne(cours: ICours)
+  + getDescription(): String
+  + getDuree(): double
+}
+
+CoursDecorator o--> ICours : wraps
+
+' ==================== PATTERN OBSERVER ====================
+interface Subject {
+  + attach(o: Observer): void
+  + detach(o: Observer): void
+  + notifyObservers(message: String): void
+}
+
+interface Observer {
+  + update(message: String): void
+}
+
+class GestionnaireEmploiDuTemps implements Subject {
+  - listeCours: List<ICours>
+  - observers: List<Observer>
+  
+  + attach(o: Observer): void
+  + detach(o: Observer): void
+  + notifyObservers(message: String): void
+  + ajouterCours(cours: ICours): void
+  + modifierCours(cours: ICours, message: String): void
+  + setChangement(message: String): void
+}
+
+class Etudiant implements Observer {
+  - nom: String
+  
+  + Etudiant(nom: String)
+  + update(message: String): void
+}
+
+class Responsable implements Observer {
+  - nom: String
+  
+  + Responsable(nom: String)
+  + update(message: String): void
+}
+
+Subject o--> Observer : notifies >
+GestionnaireEmploiDuTemps o--> ICours : manages
+
+' ==================== NOTES ====================
+note right of CoursBuilder
+  <b>Pattern Builder</b>
+  Permet la construction fluide
+  d'objets Cours complexes
+end note
+
+note bottom of CoursDecorator
+  <b>Pattern Decorator</b>
+  Ajoute dynamiquement des
+  responsabilités aux cours
+  (En ligne, En anglais, etc.)
+end note
+
+note left of GestionnaireEmploiDuTemps
+  <b>Pattern Observer</b>
+  Notifie automatiquement tous
+  les observateurs (Étudiants,
+  Responsables) lors de changements
+end note
+
+@enduml
